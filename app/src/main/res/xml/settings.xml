@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="First category">
+        <Preference
+            android:summary="This is just a normal preference"
+            android:title="Preference"
+            android:icon="@mipmap/ic_launcher"/>
+        <CheckBoxPreference
+            android:key="check_test"
+            android:defaultValue="true"
+            android:summary="It\'s a checkbox"
+            android:title="CheckBoxPreference" />
+        <CheckBoxPreference
+            android:key="pref_empty_check"
+            android:defaultValue="true"
+            android:summaryOff="Category title is hidden :("
+            android:summaryOn="Category title is visible :)"
+            android:title="Show category title" />
+        <SwitchPreference
+            android:key="switch_test"
+            android:defaultValue="true"
+            android:summary="It\'s a switch"
+            android:summaryOff="Off"
+            android:summaryOn="On"
+            android:title="SwitchPreference" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Another category">
+        <EditTextPreference
+            android:key="edit_text_test"
+            android:dialogMessage="This is the dialog\'s message"
+            android:inputType="textAutoComplete"
+            android:defaultValue="Should be a phone input (it is now!)"
+            android:summary="%s"
+            android:title="EditTextPreference" />
+        <ListPreference
+            android:key="list_test"
+            android:dialogTitle="ListPreference dialog"
+            android:entries="@array/pref_list_entries"
+            android:entryValues="@array/pref_list_values"
+            android:summary="%s"
+            android:defaultValue="A"
+            android:title="ListPreference" />
+    </PreferenceCategory>
+</PreferenceScreen>

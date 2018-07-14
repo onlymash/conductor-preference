@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Conductor Preference</string>
+    <string name="ringtone_picker_title">Ringtone</string>
+</resources>
