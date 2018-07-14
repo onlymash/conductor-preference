@@ -37,7 +37,11 @@ import com.bluelinelabs.conductor.RestoreViewOnCreateController
 
 import im.mash.preference.conductor.R
 
-abstract class PreferenceController : RestoreViewOnCreateController(), PreferenceManager.OnPreferenceTreeClickListener, PreferenceManager.OnDisplayPreferenceDialogListener, PreferenceManager.OnNavigateToScreenListener, DialogPreference.TargetFragment {
+abstract class PreferenceController : RestoreViewOnCreateController(),
+        PreferenceManager.OnPreferenceTreeClickListener,
+        PreferenceManager.OnDisplayPreferenceDialogListener,
+        PreferenceManager.OnNavigateToScreenListener,
+        DialogPreference.TargetFragment {
 
     companion object {
         const val ARG_PREFERENCE_ROOT = "PreferenceController.PREFERENCE_ROOT"
@@ -362,15 +366,11 @@ abstract class PreferenceController : RestoreViewOnCreateController(), Preferenc
         if (router.getControllerWithTag(DIALOG_CONTROLLER_TAG) != null) {
             return
         }
-        val f: PreferenceDialogController
-        if (preference is EditTextPreference) {
-            f = EditTextPreferenceDialogController.newInstance(preference.getKey())
-        } else if (preference is ListPreference) {
-            f = ListPreferenceDialogController.newInstance(preference.getKey())
-        } else if (preference is AbstractMultiSelectListPreference) {
-            f = MultiSelectListPreferenceDialogController.newInstance(preference.getKey())
-        } else {
-            throw IllegalArgumentException("Tried to display dialog for unknown " + "preference type. Did you forget to override onDisplayPreferenceDialog()?")
+        val f = when (preference) {
+            is EditTextPreference -> EditTextPreferenceDialogController.newInstance(preference.getKey())
+            is ListPreference -> ListPreferenceDialogController.newInstance(preference.getKey())
+            is AbstractMultiSelectListPreference -> MultiSelectListPreferenceDialogController.newInstance(preference.getKey())
+            else -> throw IllegalArgumentException("Tried to display dialog for unknown " + "preference type. Did you forget to override onDisplayPreferenceDialog()?")
         }
         f.targetController = this
         f.showDialog(router, DIALOG_CONTROLLER_TAG)
