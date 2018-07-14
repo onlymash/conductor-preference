@@ -40,9 +40,9 @@ import im.mash.preference.conductor.R
 abstract class PreferenceController : RestoreViewOnCreateController(), PreferenceManager.OnPreferenceTreeClickListener, PreferenceManager.OnDisplayPreferenceDialogListener, PreferenceManager.OnNavigateToScreenListener, DialogPreference.TargetFragment {
 
     companion object {
-        const val ARG_PREFERENCE_ROOT = "android.support.v7.preference.PreferenceFragmentCompat.PREFERENCE_ROOT"
+        const val ARG_PREFERENCE_ROOT = "PreferenceController.PREFERENCE_ROOT"
         private const val PREFERENCES_TAG = "android:preferences"
-        private const val DIALOG_FRAGMENT_TAG = "android.support.v7.preference.PreferenceFragment.DIALOG"
+        private const val DIALOG_CONTROLLER_TAG = "PreferenceController.DIALOG"
         private const val MSG_BIND_PREFERENCES = 1
     }
 
@@ -359,7 +359,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(), Preferenc
             return
         }
         // check if dialog is already showing
-        if (router.getControllerWithTag(DIALOG_FRAGMENT_TAG) != null) {
+        if (router.getControllerWithTag(DIALOG_CONTROLLER_TAG) != null) {
             return
         }
         val f: PreferenceDialogController
@@ -373,7 +373,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(), Preferenc
             throw IllegalArgumentException("Tried to display dialog for unknown " + "preference type. Did you forget to override onDisplayPreferenceDialog()?")
         }
         f.targetController = this
-        f.showDialog(router, DIALOG_FRAGMENT_TAG)
+        f.showDialog(router, DIALOG_CONTROLLER_TAG)
     }
 
     fun scrollToPreference(key: String) {
