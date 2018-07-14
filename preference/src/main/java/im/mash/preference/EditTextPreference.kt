@@ -1,4 +1,4 @@
-package android.support.v7.preference
+package im.mash.preference
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,6 +6,7 @@ import android.content.res.TypedArray
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.res.TypedArrayUtils
+import android.support.v7.preference.DialogPreference
 import android.text.InputType
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -122,7 +123,7 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
         }
     }
 
-    private class SavedState : Preference.BaseSavedState {
+    private class SavedState : BaseSavedState {
         companion object {
             @JvmField
             val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {

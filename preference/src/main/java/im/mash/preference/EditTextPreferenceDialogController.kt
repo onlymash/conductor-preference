@@ -2,13 +2,12 @@ package im.mash.preference
 
 import android.os.Bundle
 import android.support.annotation.RestrictTo
-import android.support.v7.preference.EditTextPreference
 import android.view.View
 import android.widget.EditText
 
 import android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
-class EditTextPreferenceDialogController : PreferenceDialogController() {
+open class EditTextPreferenceDialogController : PreferenceDialogController() {
 
     companion object {
         private const val SAVE_STATE_TEXT = "EditTextPreferenceDialogController.text"

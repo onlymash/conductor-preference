@@ -30,7 +30,7 @@
             app:iconSpaceReserved="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Another category">
-        <EditTextPreference
+        <im.mash.preference.EditTextPreference
             android:key="edit_text_test"
             android:dialogMessage="This is the dialog\'s message"
             android:inputType="textAutoComplete"

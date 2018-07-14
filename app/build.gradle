@@ -27,6 +27,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':preference')
+//    implementation 'com.github.onlymash:conductor-preference:1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.android.support:appcompat-v7:$support_library_version"
     implementation 'com.bluelinelabs:conductor:2.1.4'
