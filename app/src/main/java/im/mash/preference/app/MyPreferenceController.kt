@@ -8,4 +8,8 @@ class MyPreferenceController : PreferenceController() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.settings)
     }
+
+    override fun onCreateItemDecoration(): DividerDecoration {
+        return CategoryDivideDividerDecoration()
+    }
 }

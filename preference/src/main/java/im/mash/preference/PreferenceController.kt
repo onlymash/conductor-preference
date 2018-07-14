@@ -13,18 +13,9 @@ import android.os.Message
 import android.support.annotation.RestrictTo
 import android.support.annotation.XmlRes
 import android.support.v4.app.Fragment
-import android.support.v7.preference.AndroidResources
-import android.support.v7.preference.DialogPreference
-import android.support.v7.preference.EditTextPreference
-import android.support.v7.preference.ListPreference
-import android.support.v7.preference.Preference
-import android.support.v7.preference.PreferenceGroup
-import android.support.v7.preference.PreferenceGroupAdapter
-import android.support.v7.preference.PreferenceManager
-import android.support.v7.preference.PreferenceRecyclerViewAccessibilityDelegate
-import android.support.v7.preference.PreferenceScreen
-import android.support.v7.preference.PreferenceViewHolder
+import android.support.v7.preference.*
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference
+import android.support.v7.preference.PreferenceGroupAdapter
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
@@ -37,6 +28,7 @@ import com.bluelinelabs.conductor.RestoreViewOnCreateController
 
 import im.mash.preference.conductor.R
 
+@SuppressLint("RestrictedApi")
 abstract class PreferenceController : RestoreViewOnCreateController(),
         PreferenceManager.OnPreferenceTreeClickListener,
         PreferenceManager.OnDisplayPreferenceDialogListener,
@@ -48,6 +40,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         private const val PREFERENCES_TAG = "android:preferences"
         private const val DIALOG_CONTROLLER_TAG = "PreferenceController.DIALOG"
         private const val MSG_BIND_PREFERENCES = 1
+        val PADDING_DP = 8
     }
 
     /**
@@ -62,7 +55,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
     private var mInitDone: Boolean = false
     private var mStyledContext: Context? = null
     private var mLayoutResId = R.layout.preference_list_fragment
-    private val mDividerDecoration = DividerDecoration()
+    private var mDividerDecoration: DividerDecoration? = null
     @SuppressLint("HandlerLeak")
     private val mHandler = object : Handler() {
         override fun handleMessage(msg: Message) {
@@ -119,9 +112,12 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
                                       pref: Preference): Boolean
     }
 
-    abstract fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
+    open fun onCreateItemDecoration(): DividerDecoration {
+        return DefaultDividerDecoration()
+    }
 
-    @SuppressLint("RestrictedApi")
+    abstract fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
+    
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup,
                                      savedInstanceState: Bundle?): View {
         val tv = TypedValue()
@@ -157,12 +153,13 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         val listView = onCreateRecyclerView(themedInflater, rawListContainer,
                 savedInstanceState) ?: throw RuntimeException("Could not create RecyclerView")
         this.listView = listView
-        listView.addItemDecoration(mDividerDecoration)
+        mDividerDecoration = onCreateItemDecoration()
+        listView.addItemDecoration(mDividerDecoration!!)
         setDivider(divider)
         if (dividerHeight != -1) {
             setDividerHeight(dividerHeight)
         }
-        mDividerDecoration.setAllowDividerAfterLastItem(allowDividerAfterLastItem)
+        mDividerDecoration!!.setAllowDividerAfterLastItem(allowDividerAfterLastItem)
         rawListContainer.addView(this.listView)
         mHandler.post(mRequestFocus)
         onViewCreated(view, savedInstanceState)
@@ -170,11 +167,11 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
     }
 
     fun setDivider(divider: Drawable?) {
-        mDividerDecoration.setDivider(divider)
+        mDividerDecoration?.setDivider(divider)
     }
 
     fun setDividerHeight(height: Int) {
-        mDividerDecoration.setDividerHeight(height)
+        mDividerDecoration?.setDividerHeight(height)
     }
 
     private fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -233,13 +230,11 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
      *
      * @param preferencesResId The XML resource ID to inflate.
      */
-    @SuppressLint("RestrictedApi")
     fun addPreferencesFromResource(@XmlRes preferencesResId: Int) {
         requirePreferenceManager()
         preferenceScreen = preferenceManager!!.inflateFromResource(mStyledContext, preferencesResId, preferenceScreen)
     }
-
-    @SuppressLint("RestrictedApi")
+    
     fun setPreferencesFromResource(@XmlRes preferencesResId: Int, key: String?) {
         requirePreferenceManager()
         val xmlRoot = preferenceManager!!.inflateFromResource(mStyledContext,
@@ -329,7 +324,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
     open fun onUnbindPreferences() {
     }
 
-    @SuppressLint("RestrictedApi")
+    
     open fun onCreateRecyclerView(inflater: LayoutInflater, parent: ViewGroup,
                              savedInstanceState: Bundle?): RecyclerView {
         val recyclerView = inflater
@@ -344,7 +339,7 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         return LinearLayoutManager(activity)
     }
 
-    @SuppressLint("RestrictedApi")
+    
     open fun onCreateAdapter(preferenceScreen: PreferenceScreen): RecyclerView.Adapter<*> {
         return PreferenceGroupAdapter(preferenceScreen)
     }
@@ -456,10 +451,71 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         }
     }
 
-    private inner class DividerDecoration : RecyclerView.ItemDecoration() {
+    inner class DefaultDividerDecoration : DividerDecoration() {
+        override fun shouldDrawDividerBelow(view: View, parent: RecyclerView,
+                                            adapter: PreferenceGroupAdapter, index: Int,
+                                            preference: Preference): Boolean {
+            val nextPreference = adapter.getItem(index + 1)
+            return preference !is PreferenceCategory && nextPreference !is PreferenceCategory
+        }
+    }
+
+    inner class CategoryDivideDividerDecoration(private val padding: Int = Math.round(PADDING_DP * resources!!.displayMetrics.density)) : DividerDecoration() {
+        override fun shouldDrawDividerBelow(view: View, parent: RecyclerView, adapter: PreferenceGroupAdapter, index: Int, preference: Preference): Boolean {
+            val nextPreference = adapter.getItem(index + 1)
+            return preference !is PreferenceCategory && nextPreference is PreferenceCategory
+        }
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView,
+                                    state: RecyclerView.State) {
+            if (shouldDrawDividerBelow(view, parent)) {
+                val adapter = parent.adapter as PreferenceGroupAdapter
+                val index = parent.getChildAdapterPosition(view)
+                if (index < adapter.itemCount - 1) {
+                    val preference = adapter.getItem(index + 1)
+                    if (preference is PreferenceCategory) {
+                        outRect.bottom = padding + getDividerHeight()
+                        return
+                    }
+                }
+                outRect.bottom = padding * 2 + getDividerHeight()
+            }
+        }
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            if (getDivider() == null) {
+                return
+            }
+            val childCount = parent.childCount
+            val width = parent.width
+            for (childViewIndex in 0 until childCount) {
+                val view = parent.getChildAt(childViewIndex)
+                if (shouldDrawDividerBelow(view, parent)) {
+                    val top = view.y.toInt() + view.height + padding
+                    getDivider()?.setBounds(0, top, width, top + getDividerHeight())
+                    getDivider()?.draw(c)
+                }
+            }
+        }
+    }
+
+    abstract inner class DividerDecoration : RecyclerView.ItemDecoration() {
+
         private var mDivider: Drawable? = null
         private var mDividerHeight: Int = 0
         private var mAllowDividerAfterLastItem = true
+
+        internal fun shouldDrawDividerBelow(view: View, parent: RecyclerView): Boolean {
+            val adapter = parent.adapter as? PreferenceGroupAdapter ?: return false
+            val pos = parent.getChildAdapterPosition(view)
+            if (pos == RecyclerView.NO_POSITION) return false
+            val preference = adapter.getItem(pos)
+            val holder = parent.getChildViewHolder(view)
+            val dividerAllowedBelow = holder is PreferenceViewHolder && holder.isDividerAllowedBelow
+            if (!dividerAllowedBelow) {
+                return false
+            }
+            return shouldDrawDividerBelow(view, parent, adapter, pos, preference)
+        }
+
         override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             if (mDivider == null) {
                 return
@@ -483,20 +539,26 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
             }
         }
 
-        private fun shouldDrawDividerBelow(view: View, parent: RecyclerView): Boolean {
-            val holder = parent.getChildViewHolder(view)
-            val dividerAllowedBelow = holder is PreferenceViewHolder && holder.isDividerAllowedBelow
-            if (!dividerAllowedBelow) {
-                return false
-            }
-            var nextAllowed = mAllowDividerAfterLastItem
-            val index = parent.indexOfChild(view)
-            if (index < parent.childCount - 1) {
-                val nextView = parent.getChildAt(index + 1)
-                val nextHolder = parent.getChildViewHolder(nextView)
-                nextAllowed = nextHolder is PreferenceViewHolder && nextHolder.isDividerAllowedAbove
-            }
-            return nextAllowed
+        /**
+         * Called when Preference dose not specific whether to show the divider ot not.
+         *
+         * @param view Preference item view
+         * @param parent RecyclerView
+         * @param adapter PreferenceGroupAdapter
+         * @param index index, never be last
+         * @param preference Preference, never be last
+         * @return whether to show the divider ot not
+         */
+        abstract fun shouldDrawDividerBelow(view: View, parent: RecyclerView,
+                                            adapter: PreferenceGroupAdapter,
+                                            index: Int, preference: Preference): Boolean
+
+        fun getDivider(): Drawable? {
+            return mDivider
+        }
+
+        fun getDividerHeight(): Int {
+            return mDividerHeight
         }
 
         fun setDivider(divider: Drawable?) {

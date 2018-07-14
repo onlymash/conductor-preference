@@ -5,25 +5,29 @@
         <Preference
             android:summary="This is just a normal preference"
             android:title="Preference"
-            android:icon="@mipmap/ic_launcher"/>
+            android:icon="@mipmap/ic_launcher"
+            app:iconSpaceReserved="true"/>
         <CheckBoxPreference
             android:key="check_test"
             android:defaultValue="true"
             android:summary="It\'s a checkbox"
-            android:title="CheckBoxPreference" />
+            android:title="CheckBoxPreference"
+            app:iconSpaceReserved="true"/>
         <CheckBoxPreference
             android:key="pref_empty_check"
             android:defaultValue="true"
             android:summaryOff="Category title is hidden :("
             android:summaryOn="Category title is visible :)"
-            android:title="Show category title" />
+            android:title="Show category title"
+            app:iconSpaceReserved="true"/>
         <SwitchPreference
             android:key="switch_test"
             android:defaultValue="true"
             android:summary="It\'s a switch"
             android:summaryOff="Off"
             android:summaryOn="On"
-            android:title="SwitchPreference" />
+            android:title="SwitchPreference"
+            app:iconSpaceReserved="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="Another category">
         <EditTextPreference
@@ -32,7 +36,8 @@
             android:inputType="textAutoComplete"
             android:defaultValue="Should be a phone input (it is now!)"
             android:summary="%s"
-            android:title="EditTextPreference" />
+            android:title="EditTextPreference"
+            app:iconSpaceReserved="true"/>
         <ListPreference
             android:key="list_test"
             android:dialogTitle="ListPreference dialog"
@@ -40,29 +45,20 @@
             android:entryValues="@array/pref_list_values"
             android:summary="%s"
             android:defaultValue="A"
-            android:title="ListPreference" />
+            android:title="ListPreference"
+            app:iconSpaceReserved="true"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="SimpleMenuPreference">
 
         <SimpleMenuPreference
-            android:key="drop_down3"
-            android:title="SimpleMenuPreference"
-            android:summary="%s"/>
-
-        <SimpleMenuPreference
             android:key="drop_down4"
-            android:title="SimpleMenuPreference\napp:iconSpaceReserved = true"
+            android:title="SimpleMenuPreference"
             android:summary="%s"
             android:entries="@array/entries"
             android:entryValues="@array/entry_values"
             android:defaultValue="1"
             app:iconSpaceReserved="true"/>
-
-        <SimpleMenuPreference
-            android:key="drop_down5"
-            android:title="SimpleMenuPreference"
-            android:summary="%s"/>
 
     </PreferenceCategory>
 </PreferenceScreen>
