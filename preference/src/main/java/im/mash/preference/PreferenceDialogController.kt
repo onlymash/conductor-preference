@@ -140,7 +140,7 @@ abstract class PreferenceDialogController : RestoreViewOnCreateController(), Dia
         }
     }
 
-    fun onCreateDialog(savedViewState: Bundle?): Dialog {
+    open fun onCreateDialog(savedViewState: Bundle?): Dialog {
         val context = activity
         mWhichButtonClicked = DialogInterface.BUTTON_NEGATIVE
         val builder = AlertDialog.Builder(context!!)
@@ -251,7 +251,7 @@ abstract class PreferenceDialogController : RestoreViewOnCreateController(), Dia
      * @return The content View for the dialog.
      * @see DialogPreference.setLayoutResource
      */
-    fun onCreateDialogView(context: Context): View? {
+    open fun onCreateDialogView(context: Context): View? {
         val resId = mDialogLayoutRes
         if (resId == 0) {
             return null
