@@ -369,10 +369,16 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
             return
         }
         val f = when {
-            preference is EditTextPreference -> EditTextPreferenceDialogController.newInstance(preference.getKey())
-            dialogPreferences.containsKey(preference.javaClass) -> dialogPreferences[preference.javaClass]!!.newInstance() as PreferenceDialogController
-            preference is ListPreference -> ListPreferenceDialogController.newInstance(preference.getKey())
-            preference is AbstractMultiSelectListPreference -> MultiSelectListPreferenceDialogController.newInstance(preference.getKey())
+            preference is EditTextPreference -> EditTextPreferenceDialogController.newInstance(preference.key)
+            dialogPreferences.containsKey(preference.javaClass) -> {
+                val controller = dialogPreferences[preference.javaClass]!!.newInstance()
+                controller.args.apply {
+                    putString(PreferenceDialogController.ARG_KEY, preference.key)
+                }
+                controller as PreferenceDialogController
+            }
+            preference is ListPreference -> ListPreferenceDialogController.newInstance(preference.key)
+            preference is AbstractMultiSelectListPreference -> MultiSelectListPreferenceDialogController.newInstance(preference.key)
             else -> throw IllegalArgumentException("Tried to display dialog for unknown " + "preference type. Did you forget to override onDisplayPreferenceDialog()?")
         }
         f.targetController = this
