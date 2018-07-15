@@ -103,7 +103,7 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state != null && state.javaClass == SavedState::class.java) {
             val myState = state as SavedState?
-            super.onRestoreInstanceState(myState!!.getSuperState())
+            super.onRestoreInstanceState(myState!!.superState)
             this.text = myState.text
         } else {
             super.onRestoreInstanceState(state)
@@ -111,7 +111,35 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
     }
 
     override fun getSummary(): CharSequence {
-        return if (summary == null) super.getSummary() else String.format(summary!!, text ?: "")
+        var text = this.text
+        val hasText = !TextUtils.isEmpty(text)
+        if (!hasText) return super.getSummary()
+        else if (inputType and InputType.TYPE_NUMBER_VARIATION_PASSWORD == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||
+                inputType and InputType.TYPE_TEXT_VARIATION_PASSWORD == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                inputType and InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD) {
+            text = toStar(text!!)
+        }
+        return String.format(summary!!, text)
+    }
+
+    fun getInputType(): Int {
+        return inputType
+    }
+
+    fun getHint(): String? {
+        return hint
+    }
+
+    fun isSingleLine(): Boolean {
+        return isSingleLine
+    }
+
+    fun isSelectAllOnFocus(): Boolean {
+        return isSelectAllOnFocus
+    }
+
+    fun isCommitOnEnter(): Boolean {
+        return isCommitOnEnter
     }
 
     override fun setSummary(summary: CharSequence?) {
@@ -119,8 +147,14 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
         if (summary == null && this.summary != null) {
             this.summary = null
         } else if (summary != null && summary != this.summary) {
-            this.summary = summary.toString();
+            this.summary = summary.toString()
         }
+    }
+
+    private fun toStar(text: String): String {
+        val sb = StringBuilder()
+        for (index in 0 until text.length) sb.append("*")
+        return sb.toString()
     }
 
     private class SavedState : BaseSavedState {

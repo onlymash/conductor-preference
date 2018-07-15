@@ -1,11 +1,17 @@
 package im.mash.preference
 
+import android.content.Context
 import android.os.Bundle
 import android.support.annotation.RestrictTo
 import android.view.View
 import android.widget.EditText
 
 import android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import android.text.InputType
+import android.content.DialogInterface
+import android.view.KeyEvent
+import android.view.inputmethod.InputMethodManager
+
 
 open class EditTextPreferenceDialogController : PreferenceDialogController() {
 
@@ -49,7 +55,29 @@ open class EditTextPreferenceDialogController : PreferenceDialogController() {
             throw IllegalStateException("Dialog view must contain an EditText with id" + " @android:id/edit")
         }
 
+        mEditText!!.setSingleLine(editTextPreference.isSingleLine())
+        mEditText!!.setSelectAllOnFocus(editTextPreference.isSelectAllOnFocus())
+        if (editTextPreference.getInputType() != InputType.TYPE_CLASS_TEXT)
+            mEditText!!.inputType = editTextPreference.getInputType()
+        mEditText!!.hint = editTextPreference.getHint()
         mEditText!!.setText(mText)
+        mEditText!!.requestFocus()
+        mEditText!!.post {
+            val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT)
+        }
+        if (editTextPreference.isCommitOnEnter())
+            mEditText!!.setOnEditorActionListener { textView, keyCode, keyEvent ->
+                if (keyCode == KeyEvent.KEYCODE_ENDCALL) {
+                    onClick(object : DialogInterface {
+                        override fun dismiss() {}
+                        override fun cancel() {}
+                    }, DialogInterface.BUTTON_POSITIVE)
+                    dismissDialog()
+                    return@setOnEditorActionListener true
+                }
+                return@setOnEditorActionListener false
+            }
     }
 
     override fun onDestroyView(view: View) {
