@@ -113,7 +113,7 @@ constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleR
     override fun getSummary(): CharSequence {
         var text = this.text
         val hasText = !TextUtils.isEmpty(text)
-        if (!hasText) return super.getSummary()
+        if (!hasText) return ""
         else if (inputType and InputType.TYPE_NUMBER_VARIATION_PASSWORD == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||
                 inputType and InputType.TYPE_TEXT_VARIATION_PASSWORD == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                 inputType and InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD) {
