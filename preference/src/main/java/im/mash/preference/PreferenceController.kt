@@ -23,10 +23,12 @@ import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bluelinelabs.conductor.Controller
 
 import com.bluelinelabs.conductor.RestoreViewOnCreateController
 
 import im.mash.preference.conductor.R
+import java.util.HashMap
 
 @SuppressLint("RestrictedApi")
 abstract class PreferenceController : RestoreViewOnCreateController(),
@@ -41,6 +43,11 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         private const val DIALOG_CONTROLLER_TAG = "PreferenceController.DIALOG"
         private const val MSG_BIND_PREFERENCES = 1
         val PADDING_DP = 8
+
+        var dialogPreferences = HashMap<Class<out Preference>, Class<out Controller>>()
+        fun registerPreferenceFragment(prefClass: Class<out Preference>, controllerClass: Class<out Controller>) {
+            dialogPreferences[prefClass] = controllerClass
+        }
     }
 
     /**
@@ -361,10 +368,11 @@ abstract class PreferenceController : RestoreViewOnCreateController(),
         if (router.getControllerWithTag(DIALOG_CONTROLLER_TAG) != null) {
             return
         }
-        val f = when (preference) {
-            is EditTextPreference -> EditTextPreferenceDialogController.newInstance(preference.getKey())
-            is ListPreference -> ListPreferenceDialogController.newInstance(preference.getKey())
-            is AbstractMultiSelectListPreference -> MultiSelectListPreferenceDialogController.newInstance(preference.getKey())
+        val f = when {
+            preference is EditTextPreference -> EditTextPreferenceDialogController.newInstance(preference.getKey())
+            dialogPreferences.containsKey(preference.javaClass) -> dialogPreferences[preference.javaClass]!!.newInstance() as PreferenceDialogController
+            preference is ListPreference -> ListPreferenceDialogController.newInstance(preference.getKey())
+            preference is AbstractMultiSelectListPreference -> MultiSelectListPreferenceDialogController.newInstance(preference.getKey())
             else -> throw IllegalArgumentException("Tried to display dialog for unknown " + "preference type. Did you forget to override onDisplayPreferenceDialog()?")
         }
         f.targetController = this
